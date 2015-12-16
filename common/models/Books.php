@@ -77,12 +77,12 @@ class Books extends \yii\db\ActiveRecord
 
     public function getPreviewUrl() 
     {
-        return $this->preview ? '/' . $this->previewsFolder . '/' . $this->preview: null;
+        return $this->preview ? DIRECTORY_SEPARATOR . $this->previewsFolder . DIRECTORY_SEPARATOR . $this->preview: null;
     }
 
     public function getPreviewsFolder()
     {
-        $folderName = Yii::$app->params['previewsFolder'] . '/' . $this->id;
+        $folderName = Yii::$app->params['previewsFolder'] . DIRECTORY_SEPARATOR . $this->id;
         BaseFileHelper::createDirectory($folderName);
 
         return $folderName;
@@ -91,7 +91,7 @@ class Books extends \yii\db\ActiveRecord
     public function upload()
     {
         if ($this->imageFile) {
-            $this->imageFile->saveAs($this->previewsFolder . '/' . $this->imageFile->name);
+            $this->imageFile->saveAs($this->previewsFolder . DIRECTORY_SEPARATOR . $this->imageFile->name);
             return true;
         }
         return false;
@@ -123,5 +123,21 @@ class Books extends \yii\db\ActiveRecord
         $this->date = strtotime($this->date);
 
         return parent::beforeSave($insert);
+    }
+
+    public function beforeDelete()
+    {
+        if (parent::beforeDelete()) {
+            if ($this->preview)
+                if (file_exists($this->previewsFolder . DIRECTORY_SEPARATOR . $this->preview)) {
+                    unlink($this->previewsFolder . DIRECTORY_SEPARATOR . $this->preview);
+                }
+                if (($files = @scandir($this->previewsFolder)) && count($files) <= 2)  {
+                    rmdir($this->previewsFolder);
+                }
+            return true;
+        }
+
+        return false;
     }
 }

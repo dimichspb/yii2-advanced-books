@@ -1,13 +1,6 @@
 # yii console command
-/yii
-/init
-/init.bat
-/LICENSE.md
-/requirements.php
-/yii.bat
+
 /tests
-/environments
-/console
 /backend
 
 # phpstorm project files
