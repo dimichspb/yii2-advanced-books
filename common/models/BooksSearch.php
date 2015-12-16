@@ -66,7 +66,7 @@ class BooksSearch extends Books
             'date' => $this->date,
             'author_id' => $this->author_id,
         ]);
-
+        // adding some extra filters for search purposes
         $query->andFilterWhere(['like', 'name', $this->name])
             ->andFilterWhere(['like', 'preview', $this->preview]);
 

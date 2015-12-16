@@ -75,11 +75,24 @@ class Books extends \yii\db\ActiveRecord
         return $this->hasOne(Authors::className(), ['id' => 'author_id']);
     }
 
+    /**
+     * Returns Url of preview file consist of previews folder and preview file name if preview is set
+     * or null in other case
+     *
+     * @return null|string
+     */
     public function getPreviewUrl() 
     {
         return $this->preview ? DIRECTORY_SEPARATOR . $this->previewsFolder . DIRECTORY_SEPARATOR . $this->preview: null;
     }
 
+    /**
+     * Creates previews folder (using previewsFolder param in config file and consists of previews folder
+     * and id of current record) and returns created folder name. It throws Exception if problems creating folder
+     *
+     * @return string
+     * @throws \yii\base\Exception
+     */
     public function getPreviewsFolder()
     {
         $folderName = Yii::$app->params['previewsFolder'] . DIRECTORY_SEPARATOR . $this->id;
@@ -88,6 +101,11 @@ class Books extends \yii\db\ActiveRecord
         return $folderName;
     }
 
+    /**
+     * Save uploaded preview file into previews folder and return true if success otherwise false;
+     *
+     * @return bool
+     */
     public function upload()
     {
         if ($this->imageFile) {
@@ -97,6 +115,12 @@ class Books extends \yii\db\ActiveRecord
         return false;
     }
 
+    /**
+     * In case the form was submitted it sets preview as uploaded filename then validates form, save values and
+     * save uploaded file using upload method. Returns true if success.
+     *
+     * @return bool
+     */
     public function saveChanges()
     {
         if ($this->load(Yii::$app->request->post())) {
@@ -112,6 +136,12 @@ class Books extends \yii\db\ActiveRecord
         };
     }
 
+    /**
+     * Sets date_create and date_update to current datetime in case new records or changes date_update only otherwise
+     *
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
         if ($insert) {
@@ -125,6 +155,11 @@ class Books extends \yii\db\ActiveRecord
         return parent::beforeSave($insert);
     }
 
+    /**
+     * Deletes preview file and removes empty folder.
+     *
+     * @return bool
+     */
     public function beforeDelete()
     {
         if (parent::beforeDelete()) {

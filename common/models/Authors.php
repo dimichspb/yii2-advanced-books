@@ -48,6 +48,11 @@ class Authors extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * This method returns Full name (first name + last name) of author
+     *
+     * @return string
+     */
     public function getFullname() {
         return $this->firstname . ' ' . $this->lastname;
     }
@@ -60,7 +65,13 @@ class Authors extends \yii\db\ActiveRecord
         return $this->hasMany(Books::className(), ['author_id' => 'id']);
     }
 
-    public function getAuthorsFullnamesList() {
+    /**
+     * This method returns an array ['id' => 'fullname'] of all authors for use in dropdownlist
+     *
+     * @return array
+     */
+    public function getAuthorsFullnamesList()
+    {
         return ArrayHelper::map($this->find()->all(), 'id', 'fullname');
     }
 }

@@ -25,6 +25,7 @@ class BooksController extends Controller
                     'delete' => ['post'],
                 ],
             ],
+            // only authorized users can access BooksController's actions
             'access' => [
                 'class' => AccessControl::className(),
                 'only' => ['index','create','update','view'],
@@ -43,8 +44,9 @@ class BooksController extends Controller
      * Lists all Books models.
      * @return mixed
      */
-    public function actionIndex($id = null)
+    public function actionIndex()
     {
+        // we need to give the list of Authors to the view so we have to use Authors model
         $authors = new Authors();
 
         $searchModel = new BooksSearch();
@@ -53,7 +55,7 @@ class BooksController extends Controller
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'authorsList' => $authors->getAuthorsFullnamesList(),
+            'authorsList' => $authors->getAuthorsFullnamesList(), // sending authors fullnames list to view
         ]);
     }
 
@@ -64,6 +66,7 @@ class BooksController extends Controller
      */
     public function actionView($id)
     {
+       // if the modal window is opened render compact view of page
        if (Yii::$app->request->isAjax) {
             return $this->renderAjax('view', [
                 'model' => $this->findModel($id),
@@ -84,7 +87,7 @@ class BooksController extends Controller
     {
         $model = new Books();
         $authors = new Authors();
-
+        // if form validates and preview file has been saved redirect browser to referrer page
         if ($model->saveChanges()) {
             return $this->redirect(Yii::$app->request->post('referrer'));
         }
@@ -92,7 +95,7 @@ class BooksController extends Controller
         return $this->render('create', [
             'model' => $model,
             'authorsList' => $authors->getAuthorsFullnamesList(),
-            'referrer' => $this->getReferrer(),
+            'referrer' => $this->getReferrer(), //sending referrer url to the view for redirect on success validation
         ]);
     }
 
@@ -121,7 +124,7 @@ class BooksController extends Controller
         return $this->render('update', [
             'model' => $this->findModel($id),
             'authorsList' => $authors->getAuthorsFullnamesList(),
-            'referrer' => $this->getReferrer($id),
+            'referrer' => $this->getReferrer(),
         ]);
     }
 
@@ -153,8 +156,14 @@ class BooksController extends Controller
         }
     }
 
-
-    private function getReferrer($id = null)
+    /**
+     * Returns page referrer url with params. If referrer is form with referrer field specified return its value.
+     * For example if one of fields was not validated after form submit we need to know origin referrer url not
+     * previous form url. So using hidden field referrer in form we can know original referrer.
+     *
+     * @return string referrer url with params
+     */
+    private function getReferrer()
     {
         $referrer = Yii::$app->request->post('referrer');
         if ($referrer) {
